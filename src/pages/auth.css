@@ -1,0 +1,159 @@
+/* Auth Page - professional layout and modal styling (viewport/percent units only) */
+
+.auth-section {
+  min-height: 100vh;
+  padding: 6vmin 4vmin;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 10% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent),
+              radial-gradient(120% 120% at 100% 100%, color-mix(in srgb, var(--muted) 18%, transparent), transparent),
+              var(--bg);
+}
+
+.auth-landing {
+  width: min(92vw, 86vmin);
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  border: 0.2vmin solid color-mix(in srgb, var(--muted) 70%, transparent);
+  border-radius: 2.4vmin;
+  padding: 5vmin 4vmin;
+  box-shadow: 0 0.8vmin 2.4vmin rgba(0,0,0,0.25);
+  display: grid;
+  gap: 3vmin;
+}
+
+.page-title {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(2rem, 6vmin, 4rem);
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--fg), color-mix(in srgb, var(--accent) 60%, var(--fg)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.page-subtitle {
+  margin: 0 auto;
+  text-align: center;
+  color: var(--subtle);
+  font-size: clamp(1rem, 2.4vmin, 1.4rem);
+  width: 90%;
+}
+
+.actions-row {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: center;
+  gap: 2vmin;
+}
+
+.actions-row .primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 1.6vmin 2.6vmin;
+  border-radius: 1.2vmin;
+  font-size: clamp(1rem, 2vmin, 1.2rem);
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 0.6vmin 1.8vmin rgba(0,0,0,0.25);
+}
+
+.actions-row .primary:hover { transform: translateY(-0.3vmin); background: color-mix(in srgb, var(--accent) 85%, white); }
+.actions-row button:not(.primary) {
+  background: var(--muted);
+  color: var(--text);
+  border: none;
+  padding: 1.6vmin 2.6vmin;
+  border-radius: 1.2vmin;
+  font-size: clamp(1rem, 2vmin, 1.2rem);
+  cursor: pointer;
+}
+
+.offer-title { text-align: center; margin: 0; font-size: clamp(1.2rem, 2.8vmin, 1.8rem); color: var(--text); }
+
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2vmin;
+}
+
+.offer-card {
+  height: 16vmin;
+  border-radius: 1.6vmin;
+  border: 0.2vmin solid color-mix(in srgb, var(--muted) 70%, transparent);
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  box-shadow: inset 0 0 0 0.2vmin rgba(255,255,255,0.03), 0 0.4vmin 1.2vmin rgba(0,0,0,0.18);
+}
+
+/* Modal (scoped to auth) */
+.auth-section .modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: grid;
+  place-items: center;
+  padding: 3vmin;
+  z-index: 1000;
+}
+
+.auth-section .modal {
+  width: min(92vw, 70vmin);
+  padding: 4vmin;
+  border: 0.2vmin solid color-mix(in srgb, var(--muted) 70%, transparent);
+  border-radius: 2vmin;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: 0 1vmin 3vmin rgba(0,0,0,0.45);
+}
+
+.auth-section .modal-close {
+  position: absolute;
+  top: 1.6vmin;
+  right: 1.6vmin;
+  background: transparent;
+  color: var(--text);
+  border: 0;
+  font-size: 2.6vmin;
+  cursor: pointer;
+}
+
+/* Forms */
+.auth-form {
+  display: grid;
+  gap: 1.6vmin;
+}
+
+.auth-form label { color: var(--text); font-size: clamp(1rem, 2vmin, 1.2rem); }
+
+.auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1.6vmin 2vmin;
+  font-size: clamp(1rem, 2vmin, 1.2rem);
+  background: var(--bg);
+  color: var(--text);
+  border: 0.1vmin solid var(--muted);
+  border-radius: 1vmin;
+}
+
+.auth-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 0.2vmin color-mix(in srgb, var(--accent) 30%, transparent); }
+
+.auth-form .primary {
+  background: var(--accent);
+  color: white;
+  border: 0;
+  padding: 1.8vmin 2.6vmin;
+  border-radius: 1.2vmin;
+  font-size: clamp(1rem, 2vmin, 1.2rem);
+  cursor: pointer;
+}
+
+/* Small screens */
+@media (max-width: 800px) {
+  .auth-landing { width: min(94vw, 92vmin); padding: 5vmin 3.2vmin; }
+  .offer-grid { grid-template-columns: 1fr; }
+  .offer-card { height: 22vmin; }
+  .actions-row { grid-auto-flow: row; }
+}
+
+

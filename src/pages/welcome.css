@@ -1,0 +1,24 @@
+/* Welcome Page Styles */
+.welcome-section {
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  /* keep gradient but avoid pixel sizes */
+  background: radial-gradient(60vmin 30vmin at 50% 10%, rgba(255,255,255,0.08), transparent),
+              linear-gradient(180deg, rgba(0,0,0,0.2), transparent 40%),
+              #121212;
+}
+
+.welcome-content { text-align: center; }
+
+.welcome-title {
+  font-size: 10vmin;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.scroll-hint { margin-top: 1.6vmin; color: #9aa0a6; }
+
+

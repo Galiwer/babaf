@@ -1,0 +1,17 @@
+.profile-page { display: block; min-height: 100vh; background: var(--bg); }
+.profile-main { padding: 4vmin; overflow-y: auto; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+.profile-main h1 { font-size: clamp(2rem, 4.5vmin, 3rem); color: var(--text); margin: 0 0 3vmin 0; text-align: center; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 2vmin; margin-bottom: 3vmin; }
+.form-grid label { display: grid; gap: 0.8vmin; font-size: clamp(1rem, 2vmin, 1.2rem); color: var(--text); }
+.form-grid input[type="text"], .form-grid input[type="date"], .form-grid input[type="file"], .form-grid input[type="email"], .form-grid input[type="password"], .form-grid input[type="tel"] { padding: 1.4vmin; font-size: clamp(1rem, 2vmin, 1.2rem); border: 0.1vmin solid var(--muted); border-radius: 1vmin; background: var(--bg); color: var(--text); box-sizing: border-box; }
+.form-grid input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 0.2vmin color-mix(in srgb, var(--accent) 30%, transparent); }
+.photo-preview { width: 24vmin; height: 24vmin; border-radius: 50%; object-fit: cover; border: 0.2vmin solid var(--muted); justify-self: center; }
+.actions { display: flex; gap: 2vmin; margin-top: 2vmin; justify-content: center; }
+.actions button { padding: 1.4vmin 2.6vmin; border: none; border-radius: 1.2vmin; font-size: clamp(1rem, 2vmin, 1.2rem); cursor: pointer; transition: all 200ms ease; }
+.actions .primary { background: var(--accent); color: white; }
+.actions .primary:hover { background: color-mix(in srgb, var(--accent) 80%, white); transform: translateY(-1px); }
+.actions .danger { background: var(--danger); color: white; }
+.actions .danger:hover { background: color-mix(in srgb, var(--danger) 80%, white); transform: translateY(-1px); }
+@media (max-width: 900px) { .form-grid { grid-template-columns: 1fr; } .photo-preview { width: 32vmin; height: 32vmin; } }
+
+

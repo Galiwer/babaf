@@ -1,0 +1,38 @@
+.vaccines-page { display: block; min-height: 100vh; background: var(--bg); }
+.vacc-main { display: grid; grid-template-rows: auto 1fr auto; gap: 2vmin; padding: 3vmin; overflow-y: auto; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+.vacc-main h1 { font-size: clamp(2rem, 4vmin, 3rem); color: var(--text); margin: 0 0 2vmin 0; text-align: center; }
+.bar { display: flex; justify-content: flex-end; }
+.bar.bottom { justify-content: flex-end; align-items: end; }
+.ghost { background: var(--muted); border: 0; padding: 1.2vmin 1.8vmin; border-radius: 1vmin; color: var(--text); cursor: pointer; transition: all 200ms ease; }
+.ghost:hover { background: color-mix(in srgb, var(--muted) 80%, var(--text)); }
+.primary { background: var(--accent); color: white; border: 0; padding: 1.6vmin 2.4vmin; border-radius: 1.2vmin; cursor: pointer; transition: all 200ms ease; }
+.primary:hover { background: color-mix(in srgb, var(--accent) 80%, white); transform: translateY(-1px); }
+.list { display: grid; gap: 1.6vmin; overflow: auto; padding-right: 1vmin; }
+.row { display: grid; grid-template-columns: 1fr 5vmin; align-items: center; gap: 2vmin; background: transparent; transition: all 200ms ease; }
+.row:hover { transform: translateY(-1px); }
+.row.administered { opacity: 0.7; }
+.line { display: block; min-height: 4.6vmin; border-radius: 1vmin; background: var(--panel); padding: 1.6vmin; border: 0.1vmin solid var(--muted); transition: all 200ms ease; }
+.row.administered .line { background: color-mix(in srgb, var(--ok) 15%, var(--panel)); border-color: var(--ok); }
+.vaccine-info { display: grid; gap: 0.8vmin; }
+.vaccine-name { font-size: clamp(1.1rem, 1.8vmin, 1.4rem); font-weight: 600; color: var(--text); }
+.vaccine-due { font-size: clamp(0.9rem, 1.6vmin, 1.2rem); color: var(--subtle); }
+.administered-badge { font-size: clamp(0.8rem, 1.4vmin, 1rem); color: var(--ok); font-weight: 500; background: color-mix(in srgb, var(--ok) 20%, transparent); padding: 0.4vmin 0.8vmin; border-radius: 0.6vmin; display: inline-block; width: fit-content; }
+.vaccine-checkbox { width: 2.4vmin; height: 2.4vmin; accent-color: var(--ok); cursor: pointer; }
+.schedule { list-style: none; padding: 0; margin: 0; display: grid; gap: 1vmin; font-size: 1.8vmin; }
+.add-row { align-items: center; }
+.add-input { width: 22vmin; padding: 1.2vmin; border-radius: 1vmin; border: 0.2vmin solid var(--muted); background: var(--bg); color: var(--text); font-size: 1.8vmin; box-sizing: border-box; }
+.add-input:nth-child(1) { width: 30vmin; }
+.add-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 0.2vmin color-mix(in srgb, var(--accent) 30%, transparent); }
+.fab { position: fixed; right: 3vmin; bottom: 3vmin; width: 9vmin; height: 9vmin; border-radius: 50%; background: var(--accent); color: #fff; border: 0; font-size: 5vmin; line-height: 0; box-shadow: 0 1vmin 2.4vmin rgba(0,0,0,0.35); cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease; display: grid; place-items: center; }
+.fab:hover { transform: scale(1.06); box-shadow: 0 1.4vmin 3.2vmin rgba(0,0,0,0.45); }
+
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: grid; place-items: center; padding: 3vmin; z-index: 1000; }
+.modal { width: min(92vw, 70vmin); background: var(--panel); border-radius: 2vmin; padding: 3vmin; border: 0.2vmin solid var(--muted); box-shadow: 0 1vmin 3vmin rgba(0,0,0,0.4); }
+.modal h2 { margin: 0 0 2vmin 0; text-align: center; font-size: clamp(1.4rem, 3vmin, 2rem); }
+.auth-form { display: grid; gap: 1.4vmin; }
+.auth-form label { display: grid; gap: 0.6vmin; }
+.auth-form .add-input { width: 100%; padding: 1.4vmin; border-radius: 1vmin; border: 0.1vmin solid var(--muted); background: var(--bg); color: var(--text); box-sizing: border-box; font-size: clamp(1rem, 2vmin, 1.2rem); }
+.auth-form .add-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 0.2vmin color-mix(in srgb, var(--accent) 30%, transparent); }
+@media (max-width: 900px) { .vaccines-page { grid-template-columns: 1fr; } }
+
+

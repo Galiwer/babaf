@@ -1,0 +1,218 @@
+/* Responsive dashboard using viewport-based units only */
+
+.dashboard {
+  display: block;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.dash-main { display: grid; grid-template-rows: auto 1fr; gap: 2vmin; padding: 3vmin; overflow-y: auto; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+
+/* Two-column shell: left (content) and right (side) using display percentages */
+.dash-shell {
+  display: grid;
+  grid-template-columns: 64% 32%;
+  gap: 3vmin;
+  align-items: start;
+}
+
+/* Ensure columns can shrink and not overflow the grid */
+.dash-content, .dash-side {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.dash-content { display: grid; gap: 3vmin; min-width: 0; }
+
+/* Constrain cards and text to column width */
+.notif, .profile-card, .metrics, .notes { max-width: 100%; box-sizing: border-box; }
+.vaccine-details, .notif > div { min-width: 0; }
+.profile-info h3 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Ensure feeds and lists use full column width */
+.vaccines .feed, .appointments .feed, .notif-list { width: 100%; margin: 0; }
+
+/* Left column content should span full available width */
+.feed {
+  width: 100%;
+  margin: 0;
+}
+
+.dash-header {
+  display: grid;
+  gap: 1vmin;
+  padding: 2vmin 0;
+  border-bottom: 0.2vmin solid var(--muted);
+  margin-bottom: 3vmin;
+}
+
+.dash-header .date {
+  font-size: clamp(1.1rem, 2.2vmin, 1.4rem);
+  color: var(--subtle);
+  font-weight: 500;
+}
+
+.dash-header .welcome {
+  font-size: clamp(1.8rem, 3.6vmin, 2.4rem);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2vmin;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vmin, 2rem);
+  color: var(--text);
+}
+
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: 1vmin;
+  background: color-mix(in srgb, var(--ok) 20%, var(--panel));
+  color: var(--ok);
+  padding: 0.8vmin 1.2vmin;
+  border-radius: 1vmin;
+  font-size: clamp(0.9rem, 1.6vmin, 1.1rem);
+  font-weight: 500;
+  border: 0.1vmin solid var(--ok);
+}
+
+.success-icon {
+  font-weight: bold;
+  font-size: clamp(1rem, 1.8vmin, 1.2rem);
+}
+
+.vaccines h2,
+.appointments h2 {
+  font-size: clamp(1.1rem, 2.6vmin, 1.6rem);
+  margin: 1vmin 0;
+  font-weight: 600;
+  width: 100%;
+  color: var(--text);
+}
+
+.notif-list {
+  display: grid;
+  gap: 1.2vmin;
+}
+
+.notif {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1.6vmin;
+  background: var(--panel);
+  border-radius: 1.6vmin;
+  padding: 1.4vmin 1.6vmin;
+  box-shadow: 0 0.6vmin 1.6vmin rgba(0,0,0,0.25);
+  border: 0.2vmin solid var(--muted);
+  animation: notif-in 320ms ease forwards;
+  opacity: 0;
+  transform: translateY(0.8vmin);
+}
+
+.notif:hover {
+  transform: translateY(-0.2vmin);
+  transition: transform 120ms ease;
+}
+
+.notif .icon {
+  width: 3.4vmin;
+  height: 3.4vmin;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: inset 0 -0.4vmin 0.8vmin rgba(0,0,0,0.2);
+}
+
+.notif.danger .icon { background: color-mix(in srgb, var(--danger) 60%, var(--panel)); }
+.notif.warn .icon { background: color-mix(in srgb, var(--warn) 60%, var(--panel)); }
+.notif.muted .icon { background: color-mix(in srgb, var(--muted) 60%, var(--panel)); }
+
+.notif .title { font-weight: 600; color: var(--text); }
+.notif .meta { color: var(--subtle); font-size: clamp(0.9rem, 1.6vmin, 1.1rem); }
+
+.vaccine-details { display: grid; gap: 0.4vmin; }
+
+.vaccine-done-btn {
+  background: var(--ok);
+  color: white;
+  border: none;
+  padding: 1vmin 1.6vmin;
+  border-radius: 1vmin;
+  font-size: clamp(1rem, 1.4vmin, 1.1rem);
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-weight: 500;
+  min-width: 6vmin;
+  white-space: nowrap;
+}
+
+.vaccine-done-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ok) 80%, white);
+  transform: scale(1.05);
+  box-shadow: 0 0.4vmin 1.2vmin rgba(0,0,0,0.2);
+}
+
+.vaccine-done-btn:disabled { background: var(--muted); cursor: not-allowed; opacity: 0.7; }
+
+@keyframes notif-in { to { opacity: 1; transform: translateY(0); } }
+
+/* RIGHT column */
+.dash-side { display: grid; gap: 3vmin; align-content: start; }
+
+.profile-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2vmin;
+  padding: 2.4vmin;
+  background: var(--panel);
+  border-radius: 1.6vmin;
+  border: 0.1vmin solid var(--muted);
+  align-items: center;
+}
+
+.profile-photo { width: 8vmin; height: 8vmin; border-radius: 50%; overflow: hidden; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+.profile-photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: clamp(1.5rem, 3vmin, 2rem); font-weight: 600; }
+
+.profile-info h3 { margin: 0; font-size: clamp(1.2rem, 2.4vmin, 1.6rem); color: var(--text); }
+.profile-info p { margin: 0.5vmin 0 0 0; color: var(--subtle); font-size: clamp(1rem, 2vmin, 1.2rem); }
+
+.metrics { display: grid; gap: 1.2vmin; }
+.metric { display: grid; grid-template-columns: 1fr auto; gap: 1.2vmin; padding: 1.6vmin; background: var(--bg); border-radius: 1.2vmin; border: 0.1vmin solid var(--muted); align-items: center; }
+.metric .label { color: var(--subtle); font-size: clamp(0.9rem, 1.8vmin, 1.1rem); }
+.metric .value { color: var(--text); font-weight: 600; font-size: clamp(1rem, 2vmin, 1.2rem); }
+
+.notes { background: var(--panel); border-radius: 2vmin; min-height: 40vh; padding: 2vmin; box-shadow: 0 0.4vmin 1.6vmin rgba(0,0,0,0.2); }
+.notes h4 { margin: 0 0 1.5vmin 0; font-size: clamp(1.1rem, 2.2vmin, 1.4rem); color: var(--text); }
+.notes textarea { width: 100%; height: calc(40vh - 6vmin); border: 0.1vmin solid var(--muted); border-radius: 1vmin; padding: 1.2vmin; background: var(--bg); color: var(--text); font-size: clamp(1rem, 2vmin, 1.2rem); resize: vertical; box-sizing: border-box; font-family: inherit; }
+.notes textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 0.2vmin color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* Proximity float-up effect */
+.hover-float .notif { will-change: transform, box-shadow; transition: transform 160ms ease, box-shadow 160ms ease; }
+.hover-float:hover .notif { transform: translateY(-0.6vmin); box-shadow: 0 1vmin 2.4vmin rgba(0,0,0,0.25); }
+.hover-float .notif:hover { transform: translateY(-1.2vmin); box-shadow: 0 1.4vmin 3vmin rgba(0,0,0,0.3); }
+
+/* Responsive */
+@media (max-width: 1400px) { .dash-shell { grid-template-columns: 1fr; } }
+@media (max-width: 1024px) { .dash-shell { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .dash-side { grid-template-columns: 1fr; } }
+
+.scroll-panel { max-height: 50vh; overflow-y: auto; padding-right: 1vmin; }
+.scroll-panel::-webkit-scrollbar { width: 0.8vmin; }
+.scroll-panel::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 1vmin; }
+
+/* Border-only status colors */
+.notif { border-width: 0.3vmin; border-style: solid; }
+.status-danger { border-color: var(--danger) !important; }
+.status-warn { border-color: var(--warn) !important; }
+.status-ok { border-color: var(--ok) !important; }
+
+

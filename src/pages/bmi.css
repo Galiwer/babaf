@@ -1,0 +1,24 @@
+.bmi-page { display: block; min-height: 100vh; background: var(--bg); }
+.bmi-main { display: grid; grid-template-rows: auto auto 1fr; gap: 3vmin; padding: 4vmin; overflow-y: auto; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+.bmi-title { text-align: center; font-size: clamp(2rem, 5.5vmin, 3.2rem); margin: 0; color: var(--text); letter-spacing: -0.02em; }
+.bmi-top { display: grid; grid-template-columns: 28vmin 1fr 22vmin; align-items: start; gap: 4vmin; }
+.bmi-big { background: color-mix(in srgb, var(--danger) 35%, var(--panel)); border-radius: 2vmin; padding: 3vmin; text-align: center; box-shadow: 0 0.6vmin 1.8vmin rgba(0,0,0,0.2); }
+.bmi-big.ok { background: color-mix(in srgb, var(--ok) 35%, var(--panel)); }
+.bmi-big.warn { background: color-mix(in srgb, var(--warn) 35%, var(--panel)); }
+.bmi-value { font-size: clamp(2.6rem, 9vmin, 5rem); line-height: 1; color: var(--text); }
+.bmi-chip { margin-top: 1vmin; background: rgba(0,0,0,0.15); display: inline-block; padding: 1vmin 2vmin; border-radius: 2vmin; color: var(--text); font-size: clamp(0.9rem, 1.8vmin, 1.1rem); }
+.bmi-bars { display: grid; gap: 1.6vmin; }
+.bar { padding: 1.6vmin 2vmin; border-radius: 1.6vmin; background: color-mix(in srgb, var(--danger) 35%, var(--panel)); font-size: clamp(1.1rem, 2.2vmin, 1.4rem); box-shadow: 0 0.4vmin 1.6vmin rgba(0,0,0,0.2); color: var(--text); }
+.bar.ok { background: color-mix(in srgb, var(--ok) 35%, var(--panel)); }
+.bar.warn { background: color-mix(in srgb, var(--warn) 35%, var(--panel)); }
+.bmi-meta { display: grid; gap: 1.2vmin; justify-items: start; }
+.bmi-graph { position: relative; background: var(--panel); border-radius: 2vmin; height: 50vh; padding: 2vmin; box-shadow: 0 0.4vmin 1.6vmin rgba(0,0,0,0.2); }
+.bmi-graph svg { width: 100%; height: 100%; }
+.bmi-tooltip { position: absolute; transform: translate(-50%, -120%); background: var(--panel); border: 0.2vmin solid var(--muted); border-radius: 1.2vmin; padding: 1.2vmin 1.6vmin; color: var(--text); box-shadow: 0 0.6vmin 1.8vmin rgba(0,0,0,0.3); pointer-events: auto; }
+.bmi-tooltip-title { font-weight: 600; margin-bottom: 0.6vmin; }
+.bmi-tooltip-row { font-size: clamp(0.9rem, 1.8vmin, 1.1rem); }
+.ghost { background: var(--muted); border: 0; padding: 1.2vmin 1.8vmin; border-radius: 1vmin; color: var(--text); cursor: pointer; transition: all 200ms ease; }
+.ghost:hover { background: color-mix(in srgb, var(--muted) 80%, var(--text)); }
+@media (max-width: 900px) { .bmi-top { grid-template-columns: 1fr; } }
+
+
