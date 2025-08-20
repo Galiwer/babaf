@@ -5,11 +5,11 @@
   --fg: #e6e8f0;
   --text: #e6e8f0; /* Same as --fg for consistency */
   --subtle: #a5acb8;
-  --accent: #7c8bff;
-  --accent-strong: #6373ff;
-  --danger: #f29999;
-  --warn: #f2c28f;
-  --ok: #9ee6a3;
+  --accent: #00D084; /* Vibrant green */
+  --accent-strong: #00B570; /* Darker green */
+  --danger: #EF4444;
+  --warn: #F59E0B;
+  --ok: #22C55E;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -25,11 +25,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--accent);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--accent-strong);
 }
 
 body { margin: 0; min-width: 320px; min-height: 100vh; }
@@ -50,8 +50,8 @@ html, body {
 }
 
 /* Common buttons */
-.primary { background: var(--accent); color: white; border: 0; border-radius: 1.2vmin; padding: 1.6vmin 2.4vmin; transition: transform 120ms ease, background 120ms ease; }
-.primary:hover { background: var(--accent-strong); transform: translateY(-0.2vmin); }
+.primary { background: var(--accent); color: white; border: 0; border-radius: 1.2vmin; padding: 1.6vmin 2.4vmin; transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease; box-shadow: 0 0.4vmin 1.2vmin rgba(0, 208, 132, 0.35); }
+.primary:hover { background: var(--accent-strong); transform: translateY(-0.2vmin); box-shadow: 0 0.6vmin 1.6vmin rgba(0, 208, 132, 0.45); }
 .ghost { background: var(--muted); color: var(--fg); border: 0; border-radius: 1.2vmin; padding: 1.2vmin 1.8vmin; }
 
 .chip { background: var(--muted); padding: 0.8vmin 1.2vmin; border-radius: 1vmin; }
@@ -77,7 +77,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--accent);
 }
 button:focus,
 button:focus-visible {

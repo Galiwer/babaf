@@ -7,7 +7,9 @@ import Dashboard from './pages/Dashboard.tsx'
 import Profile from './pages/Profile.tsx'
 import Bmi from './pages/Bmi.tsx'
 import Vaccines from './pages/Vaccines.tsx'
-import Appointments from './pages/Appointments.tsx'
+import DoctorAppointments from './pages/DoctorAppointments.tsx'
+import AlreadyVaccinated from './pages/AlreadyVaccinated.tsx'
+import ProtectedRoute from './components/ProtectedRoute.tsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -16,11 +18,32 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="auth" element={<Auth />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="bmi" element={<Bmi />} />
-        <Route path="vaccines" element={<Vaccines />} />
-        <Route path="appointments" element={<Appointments />} />
+        <Route path="already-vaccinated" element={<AlreadyVaccinated />} />
+        <Route path="dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path="bmi" element={
+          <ProtectedRoute>
+            <Bmi />
+          </ProtectedRoute>
+        } />
+        <Route path="vaccines" element={
+          <ProtectedRoute>
+            <Vaccines />
+          </ProtectedRoute>
+        } />
+        <Route path="doctor-appointments" element={
+          <ProtectedRoute>
+            <DoctorAppointments />
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

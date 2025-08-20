@@ -44,8 +44,8 @@
   --spacing-3xl: 4rem;
 }
 
-/* Modern Vaccines Page Styles */
-.vaccines-page {
+/* Modern Doctor Appointments Page Styles */
+.appointments-page {
   display: block;
   min-height: 100vh;
   background: radial-gradient(60vmin 30vmin at 50% 10%, rgba(0, 208, 132, 0.15), transparent),
@@ -53,7 +53,7 @@
               #000000;
 }
 
-.vacc-main {
+.appointments-main {
   padding: 4vmin;
   overflow-y: auto;
   overflow-x: hidden;
@@ -64,7 +64,7 @@
 }
 
 /* Header Section */
-.vaccines-header {
+.appointments-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -77,7 +77,7 @@
   flex: 1;
 }
 
-.vaccines-title {
+.appointments-title {
   margin: 0 0 0.5vmin 0;
   font-size: clamp(2rem, 5vmin, 3rem);
   color: var(--text);
@@ -85,14 +85,14 @@
   letter-spacing: -0.02em;
 }
 
-.vaccines-subtitle {
+.appointments-subtitle {
   margin: 0;
   color: var(--subtle);
   font-size: clamp(1rem, 2vmin, 1.2rem);
   line-height: 1.5;
 }
 
-.add-vaccine-btn {
+.add-appointment-btn {
   display: flex;
   align-items: center;
   gap: 1vmin;
@@ -108,7 +108,7 @@
   box-shadow: 0 0.4vmin 1.2vmin rgba(0, 208, 132, 0.4);
 }
 
-.add-vaccine-btn:hover {
+.add-appointment-btn:hover {
   background: var(--primary-dark);
   transform: translateY(-0.2vmin);
   box-shadow: 0 0.6vmin 1.6vmin rgba(0, 208, 132, 0.5);
@@ -120,13 +120,13 @@
 }
 
 /* Dashboard Layout */
-.vaccines-dashboard {
+.appointments-dashboard {
   display: grid;
   gap: 4vmin;
 }
 
 /* Section Headers */
-.vaccines-section {
+.appointments-section {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
   border-radius: 2vmin;
@@ -160,13 +160,13 @@
   font-weight: 600;
 }
 
-/* Vaccine Cards */
-.vaccines-list {
+/* Appointment Cards */
+.appointments-list {
   display: grid;
   gap: 2vmin;
 }
 
-.vaccine-card {
+.appointment-card {
   background: var(--bg);
   border-radius: 1.5vmin;
   padding: 2.5vmin;
@@ -174,20 +174,20 @@
   transition: all 200ms ease;
 }
 
-.vaccine-card:hover {
+.appointment-card:hover {
   transform: translateY(-0.2vmin);
   box-shadow: 0 0.4vmin 1.2vmin rgba(0, 0, 0, 0.1);
 }
 
-.vaccine-card.administered {
+.appointment-card.completed {
   border-left: 0.4vmin solid var(--ok);
 }
 
-.vaccine-card.pending {
+.appointment-card.pending {
   border-left: 0.4vmin solid var(--warn);
 }
 
-.vaccine-header {
+.appointment-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -195,22 +195,14 @@
   gap: 2vmin;
 }
 
-.vaccine-name {
+.appointment-title {
   font-size: clamp(1.1rem, 2.4vmin, 1.4rem);
   font-weight: 600;
   color: var(--text);
   flex: 1;
 }
 
-.vaccine-company {
-  color: var(--subtle);
-  font-size: clamp(0.9rem, 1.8vmin, 1.1rem);
-  font-weight: 500;
-}
-
-.vaccine-status-badge {
-  background: var(--ok);
-  color: white;
+.appointment-status {
   padding: 0.5vmin 1vmin;
   border-radius: 0.8vmin;
   font-size: clamp(0.8rem, 1.6vmin, 1rem);
@@ -218,19 +210,27 @@
   white-space: nowrap;
 }
 
-.vaccine-status-badge.pending {
-  background: var(--warn);
+.appointment-status.completed {
+  background: var(--ok);
+  color: white;
 }
 
-/* Vaccine Details */
-.vaccine-details {
-  display: grid;
-  gap: 1vmin;
+.appointment-status.pending {
+  background: var(--warn);
+  color: white;
+}
+
+/* Appointment Details */
+.appointment-details {
   margin-bottom: 2vmin;
 }
 
-.vaccine-date,
-.vaccine-schedule {
+.appointment-info {
+  display: grid;
+  gap: 1vmin;
+}
+
+.info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -238,81 +238,67 @@
   border-bottom: 0.1vmin solid color-mix(in srgb, var(--muted) 30%, transparent);
 }
 
-.vaccine-date:last-child,
-.vaccine-schedule:last-child {
+.info-item:last-child {
   border-bottom: none;
 }
 
-.vaccine-date .label,
-.vaccine-schedule .label {
+.info-item .label {
   color: var(--subtle);
   font-size: clamp(0.9rem, 1.8vmin, 1.1rem);
   font-weight: 500;
 }
 
-.vaccine-date .value,
-.vaccine-schedule .value {
+.info-item .value {
   color: var(--text);
   font-size: clamp(0.9rem, 1.8vmin, 1.1rem);
   font-weight: 600;
 }
 
-/* Vaccine Actions */
-.vaccine-actions {
+/* Appointment Actions */
+.appointment-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 2vmin;
 }
 
-.vaccine-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 1vmin;
-  cursor: pointer;
-  font-size: clamp(0.9rem, 1.8vmin, 1.1rem);
-  color: var(--text);
+.status-btn {
+  padding: 0.8vmin 1.6vmin;
+  border: none;
+  border-radius: 0.8vmin;
+  font-size: clamp(0.8rem, 1.6vmin, 1rem);
   font-weight: 500;
-}
-
-.vaccine-checkbox input[type="checkbox"] {
-  display: none;
-}
-
-.checkmark {
-  width: 2vmin;
-  height: 2vmin;
-  border: 0.2vmin solid var(--muted);
-  border-radius: 0.4vmin;
-  background: var(--bg);
-  position: relative;
+  cursor: pointer;
   transition: all 200ms ease;
 }
 
-.vaccine-checkbox input[type="checkbox"]:checked + .checkmark {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.vaccine-checkbox input[type="checkbox"]:checked + .checkmark::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.status-btn.completed {
+  background: var(--ok);
   color: white;
-  font-size: 1.2vmin;
-  font-weight: bold;
 }
 
-/* Custom Vaccine Actions */
-.custom-vaccine-actions {
+.status-btn.completed:hover {
+  background: color-mix(in srgb, var(--ok) 80%, white);
+  transform: scale(1.05);
+}
+
+.status-btn.pending {
+  background: var(--warn);
+  color: white;
+}
+
+.status-btn.pending:hover {
+  background: color-mix(in srgb, var(--warn) 80%, white);
+  transform: scale(1.05);
+}
+
+.action-buttons {
   display: flex;
   gap: 1vmin;
 }
 
-.edit-vaccine-btn,
-.delete-vaccine-btn {
+.edit-btn,
+.delete-btn {
   display: flex;
   align-items: center;
   gap: 0.5vmin;
@@ -325,22 +311,22 @@
   transition: all 200ms ease;
 }
 
-.edit-vaccine-btn {
+.edit-btn {
   background: var(--accent);
   color: white;
 }
 
-.edit-vaccine-btn:hover {
+.edit-btn:hover {
   background: color-mix(in srgb, var(--accent) 80%, white);
   transform: scale(1.05);
 }
 
-.delete-vaccine-btn {
+.delete-btn {
   background: var(--danger);
   color: white;
 }
 
-.delete-vaccine-btn:hover {
+.delete-btn:hover {
   background: color-mix(in srgb, var(--danger) 80%, white);
   transform: scale(1.05);
 }
@@ -370,13 +356,30 @@
 }
 
 .empty-state p {
-  margin: 0;
+  margin: 0 0 3vmin 0;
   font-size: clamp(1rem, 2vmin, 1.2rem);
   line-height: 1.5;
 }
 
-/* Add Vaccine Modal Styles */
-.add-vaccine-modal {
+.primary-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 1.2vmin 2.4vmin;
+  border-radius: 1.2vmin;
+  font-size: clamp(1rem, 2vmin, 1.2rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.primary-btn:hover {
+  background: color-mix(in srgb, var(--accent) 80%, white);
+  transform: translateY(-0.2vmin);
+}
+
+/* Modal Styles */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -393,47 +396,30 @@
   background: var(--panel);
   border-radius: 2vmin;
   padding: 4vmin;
-  max-width: 50vmin;
+  max-width: 60vmin;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 1vmin 3vmin rgba(0, 0, 0, 0.3);
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 3vmin;
+.modal-content h2 {
+  margin: 0 0 3vmin 0;
+  font-size: clamp(1.4rem, 3vmin, 2rem);
+  color: var(--text);
+  font-weight: 600;
   padding-bottom: 1.5vmin;
   border-bottom: 0.1vmin solid var(--muted);
 }
 
-.modal-title {
-  margin: 0;
-  font-size: clamp(1.4rem, 3vmin, 2rem);
-  color: var(--text);
-  font-weight: 600;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 2vmin;
-  color: var(--subtle);
-  cursor: pointer;
-  padding: 0.5vmin;
-  border-radius: 0.5vmin;
-  transition: all 200ms ease;
-}
-
-.close-btn:hover {
-  background: var(--muted);
-  color: var(--text);
-}
-
-.modal-form {
+.modal-content form {
   display: grid;
+  gap: 2vmin;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2vmin;
 }
 
@@ -443,13 +429,13 @@
   gap: 0.8vmin;
 }
 
-.form-label {
+.form-group label {
   color: var(--text);
   font-weight: 600;
   font-size: clamp(0.9rem, 1.8vmin, 1.1rem);
 }
 
-.form-input {
+.form-group input {
   padding: 1.2vmin 1.6vmin;
   border: 0.1vmin solid var(--muted);
   border-radius: 1vmin;
@@ -459,7 +445,7 @@
   transition: all 200ms ease;
 }
 
-.form-input:focus {
+.form-group input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 0.2vmin color-mix(in srgb, var(--accent) 30%, transparent);
@@ -474,11 +460,9 @@
   border-top: 0.1vmin solid var(--muted);
 }
 
-.cancel-btn {
-  background: var(--muted);
-  color: var(--text);
-  border: none;
+.modal-actions button {
   padding: 1.2vmin 2.4vmin;
+  border: none;
   border-radius: 1.2vmin;
   font-size: clamp(1rem, 2vmin, 1.2rem);
   font-weight: 600;
@@ -486,12 +470,85 @@
   transition: all 200ms ease;
 }
 
-.cancel-btn:hover {
+.modal-actions button[type="button"] {
+  background: var(--muted);
+  color: var(--text);
+}
+
+.modal-actions button[type="button"]:hover {
   background: color-mix(in srgb, var(--muted) 80%, var(--text));
   transform: translateY(-0.2vmin);
 }
 
-.save-btn {
+.modal-actions button[type="submit"] {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 0.4vmin 1.2vmin rgba(74, 144, 226, 0.3);
+}
+
+.modal-actions button[type="submit"]:hover {
+  background: color-mix(in srgb, var(--accent) 80%, white);
+  transform: translateY(-0.2vmin);
+  box-shadow: 0 0.6vmin 1.6vmin rgba(74, 144, 226, 0.4);
+}
+
+/* Login Form Styles */
+.appointments-main h1 {
+  margin: 0 0 2vmin 0;
+  font-size: clamp(2rem, 5vmin, 3rem);
+  color: var(--text);
+  font-weight: 700;
+  text-align: center;
+}
+
+.appointments-main p {
+  margin: 0 0 3vmin 0;
+  color: var(--subtle);
+  font-size: clamp(1rem, 2vmin, 1.2rem);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.appointments-main form {
+  background: var(--panel);
+  border-radius: 2vmin;
+  padding: 3vmin;
+  box-shadow: 0 0.6vmin 2vmin rgba(0, 0, 0, 0.1);
+  border: 0.1vmin solid var(--muted);
+}
+
+.appointments-main form > div {
+  margin-bottom: 2vmin;
+}
+
+.appointments-main form label {
+  display: block;
+  margin-bottom: 0.8vmin;
+  color: var(--text);
+  font-weight: 600;
+  font-size: clamp(0.9rem, 1.8vmin, 1.1rem);
+}
+
+.appointments-main form input {
+  width: 100%;
+  padding: 1.2vmin 1.6vmin;
+  border: 0.1vmin solid var(--muted);
+  border-radius: 1vmin;
+  background: var(--bg);
+  color: var(--text);
+  font-size: clamp(1rem, 2vmin, 1.2rem);
+  transition: all 200ms ease;
+  box-sizing: border-box;
+}
+
+.appointments-main form input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2vmin color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.appointments-main form button {
+  width: 100%;
   background: var(--accent);
   color: white;
   border: none;
@@ -504,38 +561,48 @@
   box-shadow: 0 0.4vmin 1.2vmin rgba(74, 144, 226, 0.3);
 }
 
-.save-btn:hover {
+.appointments-main form button:hover {
   background: color-mix(in srgb, var(--accent) 80%, white);
   transform: translateY(-0.2vmin);
   box-shadow: 0 0.6vmin 1.6vmin rgba(74, 144, 226, 0.4);
 }
 
+.appointments-main form div[style*="color: red"] {
+  color: var(--danger) !important;
+  margin-bottom: 2vmin;
+  font-size: clamp(0.9rem, 1.8vmin, 1.1rem);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-  .vaccines-header {
+  .appointments-header {
     flex-direction: column;
     gap: 2vmin;
     align-items: stretch;
   }
   
-  .add-vaccine-btn {
+  .add-appointment-btn {
     align-self: flex-start;
   }
   
-  .vaccine-header {
+  .appointment-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1vmin;
   }
   
-  .vaccine-actions {
+  .appointment-actions {
     flex-direction: column;
     align-items: stretch;
     gap: 1.5vmin;
   }
   
-  .custom-vaccine-actions {
+  .action-buttons {
     justify-content: center;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
   }
   
   .modal-content {

@@ -2,13 +2,26 @@ import { useState, useEffect } from 'react';
 import { listVaccines } from '../services/vaccineService';
 
 export function useVaccineSync() {
-  const [vaccines, setVaccines] = useState(listVaccines());
-  const [updateTrigger, setUpdateTrigger] = useState(0);
+  const [vaccines, setVaccines] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updateTrigger] = useState(0);
 
-  const refreshVaccines = () => {
-    setVaccines(listVaccines());
-    setUpdateTrigger(prev => prev + 1);
+  const refreshVaccines = async () => {
+    try {
+      setLoading(true);
+      const vaccineList = await listVaccines();
+      setVaccines(vaccineList || []);
+    } catch (error) {
+      console.error('Error refreshing vaccines:', error);
+      setVaccines([]);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    refreshVaccines();
+  }, [updateTrigger]);
 
   useEffect(() => {
     // Listen for storage changes
@@ -20,19 +33,16 @@ export function useVaccineSync() {
 
     window.addEventListener('storage', handleStorageChange);
     
-    // Also check for changes every second as a fallback
+    // Also check for changes every 5 seconds as a fallback
     const interval = setInterval(() => {
-      const currentVaccines = listVaccines();
-      if (JSON.stringify(currentVaccines) !== JSON.stringify(vaccines)) {
-        setVaccines(currentVaccines);
-      }
-    }, 1000);
+      refreshVaccines();
+    }, 5000);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
     };
-  }, [vaccines]);
+  }, []);
 
-  return { vaccines, refreshVaccines, updateTrigger };
+  return { vaccines, setVaccines, refreshVaccines, updateTrigger, loading };
 }

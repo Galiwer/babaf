@@ -1,17 +1,97 @@
-export type Appointment = { id: string; whenISO: string; title: string }
-
-const KEY = 'appointments'
-
-export function listAppointments(): Appointment[] {
-  const text = localStorage.getItem(KEY)
-  if (!text) return []
-  try { return JSON.parse(text) as Appointment[] } catch { return [] }
+export type Appointment = {
+  id: string
+  userId: string
+  title: string
+  doctor: string
+  specialty: string
+  date: string
+  time: string
+  notes: string
+  completed: boolean
+  created_at: string
 }
 
-export function addAppointment(a: Appointment) {
-  const all = listAppointments()
-  all.push(a)
-  localStorage.setItem(KEY, JSON.stringify(all))
+const DEFAULT_BASE_URL = 'http://localhost:9090/health'
+const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || DEFAULT_BASE_URL
+
+// Import getUserId from profileService
+import { getUserId } from './profileService'
+
+// Get appointments from backend
+export async function getAppointments(): Promise<Appointment[]> {
+  const userId = getUserId()
+  if (!userId) throw new Error('User not authenticated')
+
+  try {
+    const response = await fetch(`${BASE_URL}/getAppointments?userId=${userId}`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch appointments')
+    }
+    return await response.json() as Appointment[]
+  } catch (error) {
+    console.error('Error fetching appointments:', error)
+    return []
+  }
 }
 
+// Add appointment to backend
+export async function addAppointment(appointment: Omit<Appointment, 'id' | 'userId' | 'created_at'>): Promise<Appointment> {
+  const userId = getUserId()
+  if (!userId) throw new Error('User not authenticated')
 
+  const response = await fetch(`${BASE_URL}/addAppointment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId,
+      title: appointment.title,
+      doctor: appointment.doctor,
+      specialty: appointment.specialty,
+      date: appointment.date,
+      time: appointment.time,
+      notes: appointment.notes
+    }),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to add appointment')
+  }
+  return await response.json() as Appointment
+}
+
+// Update appointment in backend
+export async function updateAppointment(id: string, updates: Partial<Appointment>): Promise<Appointment> {
+  const userId = getUserId()
+  if (!userId) throw new Error('User not authenticated')
+
+  const response = await fetch(`${BASE_URL}/updateAppointment`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId,
+      appointmentId: id,
+      ...updates
+    }),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to update appointment')
+  }
+  return await response.json() as Appointment
+}
+
+// Delete appointment from backend
+export async function deleteAppointment(id: string): Promise<void> {
+  const userId = getUserId()
+  if (!userId) throw new Error('User not authenticated')
+
+  const response = await fetch(`${BASE_URL}/deleteAppointment`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId,
+      appointmentId: id
+    }),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to delete appointment')
+  }
+}

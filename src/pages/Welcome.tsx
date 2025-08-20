@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import hvLogo from '../assets/hv.png'
 import { useNavigate } from 'react-router-dom'
 import './welcome.css'
 
@@ -40,7 +41,12 @@ function Welcome() {
       style={{ opacity: 1 - fade, transition: 'opacity 500ms ease' }}
     >
       <div className="welcome-content">
-        <h1 className="welcome-title">Babawhutto</h1>
+        <img
+          src={hvLogo}
+          alt="Health Vault"
+          style={{ display: 'block', width: '35%', margin: '0 auto 3%' }}
+        />
+        <h1 className="welcome-title">Health Vault</h1>
         <p className="scroll-hint">Scroll to continue</p>
       </div>
     </section>

@@ -61,8 +61,8 @@
 }
 
 .auth-tabs > button.active {
-  border-color: #646cff;
-  background: rgba(100, 108, 255, 0.15);
+  border-color: #00D084;
+  background: rgba(0, 208, 132, 0.15);
 }
 
 .auth-form {
@@ -89,7 +89,7 @@
 .auth-form .primary {
   margin-top: 6px;
   width: 100%;
-  background: #646cff;
+  background: #00D084;
   color: white;
   padding: clamp(10px, 1.8vw, 14px) clamp(12px, 2.2vw, 16px);
   font-size: clamp(1rem, 1.8vw, 1.05rem);
@@ -128,9 +128,9 @@
   font-size: 2vmin;
 }
 .actions-row > button.primary {
-  background: #646cff;
+  background: #00D084;
   color: white;
-  border-color: #646cff;
+  border-color: #00D084;
 }
 .offer-title {
   margin: clamp(10px, 1.4vw, 16px) 0 clamp(12px, 1.6vw, 18px) 0;

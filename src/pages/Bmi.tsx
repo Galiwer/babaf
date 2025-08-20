@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { addBmi, classifyBmi, computeBmi, listBmi, latest, deleteBmi, updateBmi } from '../services/bmiService'
+import { classifyBmi, computeBmi, listBmi, deleteBmi, updateBmi, fetchBmiRecords, addBmiRecordToBackend, checkGrowth } from '../services/bmiService'
 import type { BmiEntry } from '../services/bmiService'
 import { getProfile } from '../services/profileService'
 import './bmi.css'
@@ -12,36 +12,54 @@ function BmiPage() {
   const last = entries.length ? entries[entries.length - 1] : null
   const currentBmi = last ? computeBmi(last.heightCm, last.weightKg) : 0
   const status = classifyBmi(currentBmi)
+  const [growthInfo, setGrowthInfo] = useState<string>('')
   const [isModalOpen, setModalOpen] = useState(false)
   const [dateISO, setDateISO] = useState<string>(new Date().toISOString().slice(0,10))
   const [heightCm, setHeightCm] = useState<number>(120)
   const [weightKg, setWeightKg] = useState<number>(25)
   const [edit, setEdit] = useState<{ originalDateISO: string; dateISO: string; heightCm: number; weightKg: number } | null>(null)
 
-  const profile = getProfile()
+  const [profile, setProfile] = useState<Awaited<ReturnType<typeof getProfile>>>(null)
 
-  // Demo seed
+  // Load profile and BMI records from backend
   useEffect(() => {
-    if (listBmi().length === 0 && !localStorage.getItem('bmi_demo_seeded')) {
-      const today = new Date()
-      const toISO = (d: Date) => d.toISOString().slice(0,10)
-      const d1 = new Date(today); d1.setDate(today.getDate() - 120)
-      const d2 = new Date(today); d2.setDate(today.getDate() - 90)
-      const d3 = new Date(today); d3.setDate(today.getDate() - 60)
-      const d4 = new Date(today); d4.setDate(today.getDate() - 30)
-      const d5 = new Date(today)
-      const demo: BmiEntry[] = [
-        { dateISO: toISO(d1), heightCm: 70, weightKg: 8.0 },
-        { dateISO: toISO(d2), heightCm: 72, weightKg: 8.5 },
-        { dateISO: toISO(d3), heightCm: 74, weightKg: 9.0 },
-        { dateISO: toISO(d4), heightCm: 75, weightKg: 9.3 },
-        { dateISO: toISO(d5), heightCm: 77, weightKg: 9.7 },
-      ]
-      demo.forEach(addBmi)
-      localStorage.setItem('bmi_demo_seeded', '1')
-      setEntries(listBmi())
-    }
+    getProfile().then(setProfile).catch(() => setProfile(null))
+    ;(async () => {
+      const backend = await fetchBmiRecords()
+      if (backend.length) {
+        setEntries(backend)
+      }
+    })()
   }, [])
+
+  useEffect(() => {
+    if (last) {
+      checkGrowth(last.weightKg, last.heightCm).then(res => {
+        if (!res) { setGrowthInfo(''); return }
+        if (typeof res.ageInMonths === 'number' && res.ageInMonths < 24 && res.weightStatus) {
+          setGrowthInfo(`Weight-for-age: ${res.weightStatus}`)
+        } else if (typeof res.bmi === 'number' && res.bmiStatus) {
+          setGrowthInfo(`BMI ${res.bmi.toFixed(1)}: ${res.bmiStatus}`)
+        } else {
+          setGrowthInfo(res.message || '')
+        }
+      })
+    }
+  }, [last?.dateISO])
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        setModalOpen(false)
+      }
+    }
+    
+    if (isModalOpen) {
+      document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isModalOpen])
 
   const graphRef = useRef<HTMLDivElement | null>(null)
   const [tooltip, setTooltip] = useState<{ visible: boolean; left: number; top: number; entry?: BmiEntry; age?: string }>(
@@ -54,19 +72,52 @@ function BmiPage() {
     const container = graphRef.current
     if (!container) return
     const rect = container.getBoundingClientRect()
+    
+    // Calculate position relative to the graph container
     const left = e.clientX - rect.left
-    const top = e.clientY - rect.top - 8
+    const top = e.clientY - rect.top
+    
+    // Adjust tooltip position to appear near the dot but not under it
+    let tooltipLeft = left + 15 // Offset to the right of the dot
+    let tooltipTop = top - 60   // Offset above the dot
+    
+    // Ensure tooltip stays within container bounds
+    const tooltipWidth = 200 // Approximate tooltip width
+    const tooltipHeight = 120 // Approximate tooltip height
+    
+    if (tooltipLeft + tooltipWidth > rect.width) {
+      tooltipLeft = left - tooltipWidth - 15 // Show to the left of the dot
+    }
+    
+    if (tooltipTop < 0) {
+      tooltipTop = top + 15 // Show below the dot if not enough space above
+    }
+    
+    if (tooltipTop + tooltipHeight > rect.height) {
+      tooltipTop = rect.height - tooltipHeight - 10 // Keep within bottom bounds
+    }
 
-    const age = formatAgeAt(entry.dateISO, profile?.birthdateISO || profile?.dateOfBirth)
+    const age = formatAgeAt(entry.dateISO, profile?.dateOfBirth)
 
-    setTooltip({ visible: true, left, top, entry, age })
+    setTooltip({ visible: true, left: tooltipLeft, top: tooltipTop, entry, age })
   }
 
   function closeTooltip() { setTooltip({ visible: false, left: 0, top: 0 }) }
 
-  function handleSaveNew() {
-    addBmi({ dateISO, heightCm, weightKg })
-    setEntries(listBmi())
+  async function handleSaveNew() {
+    const newEntry: BmiEntry = { dateISO, heightCm, weightKg }
+    // Save to backend first
+    await addBmiRecordToBackend(newEntry)
+    // Refresh from backend; if empty, fall back to local
+    const latestFromBackend = await fetchBmiRecords()
+    if (latestFromBackend.length) {
+      setEntries(latestFromBackend)
+    } else {
+      // Fallback to local storage
+      const { addBmi } = await import('../services/bmiService')
+      addBmi(newEntry)
+      setEntries(listBmi())
+    }
     setModalOpen(false)
   }
 
@@ -87,76 +138,304 @@ function BmiPage() {
     setEntries(listBmi())
   }
 
-  const past = entries.slice(0, -1)
-  const present = last ? [last] : []
+  // Note: previously used for UI sections; no longer needed
 
   return (
     <div className="bmi-page">
       <SideNav />
       <main className="bmi-main">
-        <h1 className="bmi-title">BMI</h1>
+        <header className="bmi-header">
+          <h1 className="bmi-title">BMI & Growth Tracking</h1>
+          <button className="add-bmi-btn" onClick={() => setModalOpen(true)}>
+            <span className="add-icon">+</span>
+            Add Entry
+          </button>
+        </header>
 
-        <section className="bmi-top">
-          <div className={`bmi-big ${status.color}`}>
-            <div className="bmi-value">{currentBmi || '—'}</div>
-            <div className="bmi-chip">{status.label}</div>
-          </div>
+        {/* BMI Add Entry Modal */}
+        {isModalOpen && (
+          <div className="bmi-modal-backdrop" onClick={() => setModalOpen(false)}>
+            <div className="bmi-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="bmi-modal-header">
+                <h2>Add BMI Entry</h2>
+                <button className="modal-close" onClick={() => setModalOpen(false)}>✕</button>
+              </div>
+              
+              <form className="bmi-form" onSubmit={(e) => { e.preventDefault(); handleSaveNew(); }}>
+                <div className="form-group">
+                  <label htmlFor="bmi-date">Date</label>
+                  <input
+                    id="bmi-date"
+                    type="date"
+                    value={dateISO}
+                    onChange={(e) => setDateISO(e.target.value)}
+                    required
+                  />
+                </div>
 
-          <div className="bmi-bars">
-            {['underweight', 'healthy', 'overweight', 'obese'].map((label) => (
-              <div key={label} className={`bar ${mapLabelToColor(label)}`}>{label}</div>
-            ))}
-          </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="bmi-height">Height (cm)</label>
+                    <input
+                      id="bmi-height"
+                      type="number"
+                      min="50"
+                      max="250"
+                      step="0.1"
+                      value={heightCm}
+                      onChange={(e) => setHeightCm(Number(e.target.value))}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="bmi-weight">Weight (kg)</label>
+                    <input
+                      id="bmi-weight"
+                      type="number"
+                      min="1"
+                      max="300"
+                      step="0.1"
+                      value={weightKg}
+                      onChange={(e) => setWeightKg(Number(e.target.value))}
+                      required
+                    />
+                  </div>
+                </div>
 
-          <div className="bmi-meta">
-            <div className="chip">Height {last?.heightCm ?? '—'} cm</div>
-            <div className="chip">Weight {last?.weightKg ?? '—'} kg</div>
-            <button className="ghost" onClick={() => setModalOpen(true)}>ADD</button>
+                <div className="bmi-preview">
+                  <div className="preview-label">BMI Preview:</div>
+                  <div className="preview-value">
+                    {computeBmi(heightCm, weightKg).toFixed(1)}
+                    <span className="preview-category">({classifyBmi(computeBmi(heightCm, weightKg)).label})</span>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button type="button" className="btn-secondary" onClick={() => setModalOpen(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    Add Entry
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </section>
+        )}
+
+        <div className="bmi-dashboard">
+          <div className="bmi-stats">
+            <div className={`bmi-card ${status.color}`}>
+              <div className="bmi-card-header">
+                <h3>Current BMI</h3>
+                <div className={`bmi-status ${status.color}`}>{status.label}</div>
+              </div>
+              <div className="bmi-value">{currentBmi ? currentBmi.toFixed(1) : '—'}</div>
+              <div className="bmi-details">
+                <div className="bmi-detail">
+                  <span className="label">Height</span>
+                  <span className="value">{last?.heightCm ?? '—'} cm</span>
+                </div>
+                <div className="bmi-detail">
+                  <span className="label">Weight</span>
+                  <span className="value">{last?.weightKg ?? '—'} kg</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bmi-ranges">
+              <h3>BMI Categories</h3>
+              <div className="range-bars">
+                {[
+                  { label: 'Underweight', color: 'danger', range: '< 18.5' },
+                  { label: 'Healthy', color: 'ok', range: '18.5 - 24.9' },
+                  { label: 'Overweight', color: 'warn', range: '25.0 - 29.9' },
+                  { label: 'Obese', color: 'danger', range: '≥ 30.0' }
+                ].map((category) => (
+                  <div key={category.label} className={`range-bar ${category.color}`}>
+                    <div className="range-label">{category.label}</div>
+                    <div className="range-value">{category.range}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {growthInfo && (
+              <div className="growth-info">
+                <h3>Growth Status</h3>
+                <div className="growth-message">{growthInfo}</div>
+              </div>
+            )}
+          </div>
 
         <section className="bmi-graph" ref={graphRef} onClick={closeTooltip}>
-          <svg viewBox="0 0 100 60" preserveAspectRatio="none">
-            <rect x={graph.margins.left} y={graph.margins.top} width={graph.innerWidth} height={graph.innerHeight} fill="none" stroke="#ffffff22" strokeWidth="0.4" />
-            {graph.yTicks.map(t => (<line key={`y-${t.y}`} x1={graph.margins.left} y1={t.y} x2={graph.margins.left + graph.innerWidth} y2={t.y} stroke="#ffffff11" strokeWidth="0.3" />))}
-            {graph.xTicks.map(t => (<line key={`x-${t.x}`} x1={t.x} y1={graph.margins.top} x2={t.x} y2={graph.margins.top + graph.innerHeight} stroke="#ffffff0e" strokeWidth="0.3" />))}
-            <polyline fill="none" stroke="#7c8bff" strokeWidth="0.8" points={graph.polyPoints} />
-            {graph.circles.map((c) => (
-              <circle key={c.key} cx={c.cx} cy={c.cy} r={1.2} fill="#7c8bff" stroke="#ffffff55" strokeWidth="0.3" style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); onPointClick(e, c.entry) }} />
-            ))}
-            <text x={graph.margins.left + graph.innerWidth / 2} y={graph.margins.top + graph.innerHeight + 6} textAnchor="middle" fill="#9aa0a6" fontSize="3">Date</text>
-            <text x={graph.margins.left - 6} y={graph.margins.top - 3} textAnchor="start" fill="#9aa0a6" fontSize="3">BMI</text>
-            {graph.yTicksLabeled.map(t => (<text key={`yl-${t.y}`} x={graph.margins.left - 2} y={t.y + 1.2} textAnchor="end" fill="#9aa0a6" fontSize="2.5">{t.label}</text>))}
-            {graph.xTicksLabeled.map(t => (<text key={`xl-${t.x}`} x={t.x} y={graph.margins.top + graph.innerHeight + 4.5} textAnchor="middle" fill="#9aa0a6" fontSize="2.5">{t.label}</text>))}
-            <text x={graph.margins.left + 1} y={graph.margins.top - 3} fill="#e6e8f0" fontSize="3.2" fontWeight={600}>BMI over time</text>
-          </svg>
+          <div className="graph-header">
+            <h3>BMI Trend</h3>
+            <p>Click on points to see details</p>
+          </div>
+          
+          <div className="graph-container">
+            <svg viewBox="0 0 160 90" preserveAspectRatio="xMidYMid meet" className="modern-graph">
+              {/* Background grid */}
+              <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.3"/>
+                </pattern>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#4A90E2" stopOpacity="0.8"/>
+                  <stop offset="100%" stopColor="#7C8BFF" stopOpacity="1"/>
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge> 
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              {/* Background */}
+              <rect x={graph.margins.left} y={graph.margins.top} width={graph.innerWidth} height={graph.innerHeight} fill="url(#grid)" stroke="rgba(255,255,255,0.15)" strokeWidth="0.4" rx="2"/>
+              
+              {/* Grid lines */}
+              {graph.yTicks.map(t => (
+                <line key={`y-${t.y}`} x1={graph.margins.left} y1={t.y} x2={graph.margins.left + graph.innerWidth} y2={t.y} stroke="rgba(255,255,255,0.12)" strokeWidth="0.3"/>
+              ))}
+              {graph.xTicks.map(t => (
+                <line key={`x-${t.x}`} x1={t.x} y1={graph.margins.top} x2={t.x} y2={graph.margins.top + graph.innerHeight} stroke="rgba(255,255,255,0.12)" strokeWidth="0.3"/>
+              ))}
+              
+              {/* Trend line with gradient and glow */}
+              <polyline 
+                fill="none" 
+                stroke="url(#lineGradient)" 
+                strokeWidth="1.2" 
+                points={graph.polyPoints}
+                filter="url(#glow)"
+                style={{ transition: 'all 0.3s ease' }}
+              />
+              
+              {/* Data points with hover effects */}
+              {graph.circles.map((c) => (
+                <g key={c.key}>
+                  {/* Glow effect */}
+                  <circle 
+                    cx={c.cx} 
+                    cy={c.cy} 
+                    r="2.5" 
+                    fill="rgba(74, 144, 226, 0.3)" 
+                    className="point-glow"
+                  />
+                  {/* Main point */}
+                  <circle 
+                    cx={c.cx} 
+                    cy={c.cy} 
+                    r="1.8" 
+                    fill="#4A90E2" 
+                    stroke="#FFFFFF" 
+                    strokeWidth="0.4" 
+                    className="data-point"
+                    style={{ cursor: 'pointer' }} 
+                    onClick={(e) => { e.stopPropagation(); onPointClick(e, c.entry) }}
+                  />
+                  {/* Inner highlight */}
+                  <circle 
+                    cx={c.cx} 
+                    cy={c.cy} 
+                    r="0.8" 
+                    fill="rgba(255,255,255,0.8)"
+                    className="point-highlight"
+                  />
+                </g>
+              ))}
+              
+              {/* Axis labels */}
+              <text x={graph.margins.left + graph.innerWidth / 2} y={graph.margins.top + graph.innerHeight + 12} textAnchor="middle" fill="rgba(255,255,255,0.8)" fontSize="5" fontWeight="600">Date</text>
+              <text x={graph.margins.left - 12} y={graph.margins.top + 8} textAnchor="end" fill="rgba(255,255,255,0.8)" fontSize="5" fontWeight="600" transform={`rotate(-90, ${graph.margins.left - 12}, ${graph.margins.top + 8})`}>BMI</text>
+              
+              {/* Tick labels */}
+              {graph.yTicksLabeled.map(t => (
+                <text key={`yl-${t.y}`} x={graph.margins.left - 5} y={t.y + 2} textAnchor="end" fill="rgba(255,255,255,0.7)" fontSize="3.5" fontWeight="500">{t.label}</text>
+              ))}
+              {graph.xTicksLabeled.map(t => (
+                <text key={`xl-${t.x}`} x={t.x} y={graph.margins.top + graph.innerHeight + 8} textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="3.5" fontWeight="500">{t.label}</text>
+              ))}
+            </svg>
+          </div>
 
+          {/* Modern tooltip */}
           {tooltip.visible && tooltip.entry && (
-            <div className="bmi-tooltip" style={{ left: `${tooltip.left}px`, top: `${tooltip.top}px` }} onClick={(e)=>e.stopPropagation()}>
-              <div className="bmi-tooltip-title">{tooltip.entry.dateISO}</div>
-              <div className="bmi-tooltip-row">Height: <strong>{tooltip.entry.heightCm} cm</strong></div>
-              <div className="bmi-tooltip-row">Weight: <strong>{tooltip.entry.weightKg} kg</strong></div>
-              {tooltip.age ? (<div className="bmi-tooltip-row">Age: <strong>{tooltip.age}</strong></div>) : null}
+            <div className="bmi-tooltip-modern" style={{ left: `${tooltip.left}px`, top: `${tooltip.top}px` }} onClick={(e)=>e.stopPropagation()}>
+              <div className="tooltip-header">
+                <div className="tooltip-date">{new Date(tooltip.entry.dateISO).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })}</div>
+                <div className="tooltip-bmi">BMI: {computeBmi(tooltip.entry.heightCm, tooltip.entry.weightKg).toFixed(1)}</div>
+              </div>
+              <div className="tooltip-content">
+                <div className="tooltip-row">
+                  <span className="tooltip-label">Height:</span>
+                  <span className="tooltip-value">{tooltip.entry.heightCm} cm</span>
+                </div>
+                <div className="tooltip-row">
+                  <span className="tooltip-label">Weight:</span>
+                  <span className="tooltip-value">{tooltip.entry.weightKg} kg</span>
+                </div>
+                {tooltip.age && (
+                  <div className="tooltip-row">
+                    <span className="tooltip-label">Age:</span>
+                    <span className="tooltip-value">{tooltip.age}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </section>
 
-        {/* Past / Present entries */}
-        <section style={{ display: 'grid', gap: '1.6vmin' }}>
-          <h2 style={{ margin: 0, fontSize: 'clamp(1.2rem, 2.6vmin, 1.8rem)' }}>BMI entries</h2>
-          <div style={{ display: 'grid', gap: '1vmin' }}>
-            {[...entries].reverse().map(e => (
-              <div key={e.dateISO} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '1vmin', alignItems: 'center', background: 'var(--panel)', border: '0.1vmin solid var(--muted)', borderRadius: '1vmin', padding: '1.2vmin' }}>
-                <div style={{ color: 'var(--subtle)' }}>{e.dateISO}</div>
-                <div>H {e.heightCm} cm • W {e.weightKg} kg • BMI {computeBmi(e.heightCm, e.weightKg)}</div>
-                <div style={{ display: 'flex', gap: '1vmin' }}>
-                  <button className="ghost" onClick={() => onEdit(e)}>Edit</button>
-                  <button className="ghost" onClick={() => onDelete(e.dateISO)}>Delete</button>
+          <div className="bmi-entries">
+            <div className="entries-header">
+              <h2>BMI History</h2>
+              <p>Track all your measurements</p>
+            </div>
+            
+            <div className="entries-list">
+              {entries.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">📊</div>
+                  <h3>No BMI entries yet</h3>
+                  <p>Start tracking your BMI by adding your first entry</p>
+                  <button className="primary-btn" onClick={() => setModalOpen(true)}>Add First Entry</button>
                 </div>
-              </div>
-            ))}
+              ) : (
+                [...entries].reverse().map(e => (
+                  <div key={e.dateISO} className="entry-card">
+                    <div className="entry-date">{e.dateISO}</div>
+                    <div className="entry-metrics">
+                      <div className="metric">
+                        <span className="metric-label">Height</span>
+                        <span className="metric-value">{e.heightCm} cm</span>
+                      </div>
+                      <div className="metric">
+                        <span className="metric-label">Weight</span>
+                        <span className="metric-value">{e.weightKg} kg</span>
+                      </div>
+                      <div className="metric">
+                        <span className="metric-label">BMI</span>
+                        <span className="metric-value bmi-value-display">{computeBmi(e.heightCm, e.weightKg).toFixed(1)}</span>
+                      </div>
+                    </div>
+                    <div className="entry-actions">
+                      <button className="edit-btn" onClick={() => onEdit(e)}>Edit</button>
+                      <button className="delete-btn" onClick={() => onDelete(e.dateISO)}>Delete</button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        </section>
+        </div>
 
         {/* Edit modal */}
         {edit ? (
@@ -208,9 +487,9 @@ function buildGraphData(entries: BmiEntry[]): {
   yTicksLabeled: Array<{ y: number; label: string }>;
   xTicksLabeled: Array<{ x: number; label: string }>;
 } {
-  const margins = { left: 10, right: 6, top: 8, bottom: 12 }
-  const width = 100
-  const height = 60
+  const margins = { left: 20, right: 15, top: 15, bottom: 20 }
+  const width = 160
+  const height = 90
   const innerWidth = width - margins.left - margins.right
   const innerHeight = height - margins.top - margins.bottom
 
@@ -282,11 +561,7 @@ function buildGraphData(entries: BmiEntry[]): {
   return { polyPoints: poly, circles, margins, innerWidth, innerHeight, yTicks, xTicks, yTicksLabeled, xTicksLabeled }
 }
 
-function mapLabelToColor(label: string): 'danger'|'ok'|'warn' {
-  if (label === 'healthy') return 'ok'
-  if (label === 'overweight') return 'warn'
-  return 'danger'
-}
+
 
 function formatAgeAt(dateISO: string, birthISO?: string): string | undefined {
   if (!birthISO) return undefined
